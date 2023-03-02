@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Media;
-using System.Security.Cryptography;
 using Raylib;
 using static Raylib.Raylib;
 
@@ -23,11 +21,11 @@ namespace Project2D
 
         private Vector2 velocity = new Vector2();
         private Vector2 dVelocity = new Vector2();
-        private float speed = 256.0f;
-        private float rotSpeed = 1.0f;
-        private float turretSpeed = 2.0f;
-        private float accel = 0.01f;
-        private float decel = 0.05f;
+        private float speed = 512.0f;
+        private float rotSpeed = 2.0f;
+        private float turretSpeed = 4.0f;
+        private float accel = 0.05f;
+        private float decel = 0.1f;
 
         public TankObject() : base()
         {
@@ -114,11 +112,17 @@ namespace Project2D
                 if (o is WallObject)
                 {
                     var w = (WallObject)o;
-                    if (boundingBox.Overlaps(boundingBox.min, boundingBox.max + new Vector3(dVelocity.x, dVelocity.y, 0.0f), w.boundingBox))
+                    Vector3 xOff = new Vector3(dVelocity.x, 0.0f, 0.0f);
+                    Vector3 yOff = new Vector3(0.0f, dVelocity.y, 0.0f);
+                    if (boundingBox.Overlaps(boundingBox.min + xOff, boundingBox.max + xOff, w.boundingBox))
                     {
-                        
-                        Translate(-Math.Sign(dVelocity.x), -Math.Sign(dVelocity.y));
+                        Translate(-1.0f * Math.Sign(dVelocity.x) / 2.0f, 0.0f);
                         velocity.x = 0.0f;
+                        hit = true;
+                    }
+                    if (boundingBox.Overlaps(boundingBox.min + yOff, boundingBox.max + yOff, w.boundingBox))
+                    {
+                        Translate(0.0f, -1.0f * Math.Sign(dVelocity.y) / 2.0f);
                         velocity.y = 0.0f;
                         hit = true;
                     }

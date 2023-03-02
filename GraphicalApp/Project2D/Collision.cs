@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Project2D
 {
@@ -153,6 +149,7 @@ namespace Project2D
             return Vector3.Clamp(p, min, max);
         }
 
+        // AABB Detection
         public bool Overlaps(Vector3 p)
         {
             return !(p.x < min.x || p.y < min.y || p.x > max.x || p.y > max.y);
