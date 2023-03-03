@@ -1,6 +1,7 @@
 ﻿using Raylib_cs;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Project2D
 {
@@ -124,6 +125,11 @@ namespace Project2D
             if (children.Remove(child) == true)
                 child.parent = null;
         }
+        public void MoveChildToStart(GameObject child)
+        {
+            children.Remove(child);
+            children.Insert(0, child);
+        }
 
         public Matrix3 LocalTransform { get { return localTransform; } }
         public Matrix3 GlobalTransform { get { return globalTransform; } }
@@ -147,7 +153,8 @@ namespace Project2D
 
     public class SpriteObject : GameObject
     {
-        private Texture2D tex;
+        protected Texture2D tex;
+        public float alpha = 1.0f;
      
         public SpriteObject() : base()
         { }
@@ -179,7 +186,7 @@ namespace Project2D
             Raylib.DrawTexturePro(tex,
                 source, dest, new Vector2(0.0f, 0.0f), 
                 GlobalRotation * (float)(180.0f / Math.PI),
-                Color.WHITE);
+                new Color(255, 255, 255, (int)(alpha * 255)));
             base.Draw(); // Draw Children
         }
 

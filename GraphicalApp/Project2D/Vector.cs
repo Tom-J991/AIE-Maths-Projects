@@ -32,6 +32,8 @@ namespace Project2D
 
         public Vector2 Normalise()
         {
+            if (Magnitude() == 0)
+                return this / 1.0f;
             return this / Magnitude();
         }
 

@@ -19,8 +19,8 @@ namespace Project2D
         public SpriteObject turretSprite;
         public GameObject turretObject;
 
-        private Vector2 velocity = new Vector2(); // Velocity
-        private Vector2 dVelocity = new Vector2(); // Velocity * Delta Time
+        public Vector2 velocity = new Vector2(); // Velocity
+        public Vector2 dVelocity = new Vector2(); // Velocity * Delta Time
         private float speed = 512.0f;
         private float rotSpeed = 2.0f;
         private float turretSpeed = 4.0f;
@@ -145,6 +145,40 @@ namespace Project2D
             return _b ? 1 : 0; // Parses boolean as an Integer.
         }
     }
+    class Tracks : GameObject
+    {
+        private SpriteObject trackSprite;
+
+        public bool destroy = false;
+        private float fadeSpeed = 1.0f;
+
+        public Tracks() : base()
+        {
+            trackSprite = new SpriteObject();
+
+            trackSprite.LoadTexture("../Images/tank/tracks/tracksLarge.png");
+            trackSprite.SetRotation(-90 * (float)(Math.PI / 180.0f));
+            trackSprite.SetPosition(-trackSprite.Height / 1.5f, trackSprite.Width / 2.0f);
+            trackSprite.alpha = 1.0f;
+            AddChild(trackSprite);
+        }
+
+        public override void Update(float deltaTime)
+        {
+            if (destroy)
+                return;
+            base.Update(deltaTime);
+            trackSprite.alpha -= deltaTime * fadeSpeed; // Fade over time.
+            if (trackSprite.alpha <= 0)
+                destroy = true; // Destroy if faded completely.
+        }
+        public override void Draw()
+        {
+            if (destroy)
+                return;
+            base.Draw();
+        }
+    }
     class BulletObject : GameObject
     {
         public AABB boundingBox;
@@ -188,7 +222,6 @@ namespace Project2D
             Vector2 move = Forward * deltaTime * speed;
             Translate(move.x, move.y);
         }
-
         public override void Draw()
         {
             if (destroy)
@@ -326,6 +359,7 @@ namespace Project2D
 
         float shootTimer = 0.0f;
         float fireRate = 0.1f;
+        float trackTimer = 0.0f;
         public void Update()
         {
             // Game Timings
@@ -385,6 +419,23 @@ namespace Project2D
                     sceneRoot.RemoveChild(b);
                     bullets.RemoveAt(i--);
                 }
+            }
+            // Create Tracks
+            float trackRate = (1 - (Math.Abs(player.velocity.Magnitude() / 128)) + 0.25f) * 0.25f; // Change track rate relative to player speed.
+            // Console.WriteLine(trackRate.ToString());
+            if (trackTimer > 0.0f)
+                trackTimer -= deltaTime;
+            if ((player.dVelocity.x != 0.0f || player.dVelocity.y != 0.0f) && trackTimer <= 0.0f) // Only create track when moving.
+            {
+                Tracks t = new Tracks();
+                t.SetScale(0.25f, 0.25f);
+                t.SetPosition(player.GlobalPosition.x, player.GlobalPosition.y); // Position relative to player.
+                t.Rotate(player.GlobalRotation); // Rotation relative to player.
+
+                sceneRoot.AddChild(t); // Add track to scene.
+                sceneRoot.MoveChildToStart(t); // Move to start of list so it draws underneath.
+
+                trackTimer = trackRate; // Reset Timer
             }
 
             // Update all Scene Objects
