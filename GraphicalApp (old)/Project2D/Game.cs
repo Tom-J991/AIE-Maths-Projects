@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Raylib_cs;
-using static Raylib_cs.Raylib;
+using Raylib;
+using static Raylib.Raylib;
 
 namespace Project2D
 {
@@ -98,7 +98,7 @@ namespace Project2D
                 BoundingBox tmp = new BoundingBox();
                 tmp.min = boundingBox.min;
                 tmp.max = boundingBox.max;
-                Raylib.DrawBoundingBox(tmp, Color.BLUE);
+                Raylib.Raylib.DrawBoundingBox(tmp, Color.BLUE);
             }
         }
 
@@ -200,7 +200,7 @@ namespace Project2D
                 BoundingBox tmp = new BoundingBox();
                 tmp.min = boundingBox.min;
                 tmp.max = boundingBox.max;
-                Raylib.DrawBoundingBox(tmp, Color.BLUE);
+                Raylib.Raylib.DrawBoundingBox(tmp, Color.BLUE);
             }
         }
 
@@ -273,7 +273,7 @@ namespace Project2D
             "----WWWWWWWWWWWW----" +
             "----WWWW----WWWW----" +
             "----WWWW----WWWW----" +
-            "----WWWW----WWWW----";
+            "WWWWWWWWWWWWWWWWWWWW";
 
         public Game()
         {
@@ -281,7 +281,6 @@ namespace Project2D
 
         public void Init()
         {
-            // Timing
             stopwatch.Start();
             lastTime = stopwatch.ElapsedMilliseconds;
 
@@ -290,7 +289,7 @@ namespace Project2D
                 Console.WriteLine("Stopwatch high-resolution frequency: {0} ticks per second", Stopwatch.Frequency);
             }
 
-            // Create Game Objects and Init
+            // Init Game
             sceneRoot = new GameObject();
 
             map = new GameObject();
@@ -309,19 +308,21 @@ namespace Project2D
             sceneRoot.AddChild(map);
             sceneRoot.AddChild(player);
 
-            // Create Camera and Screen Buffer
             camera = new Camera2D();
+            //camera.zoom = 1.5f;
+            camera.zoom = 1.0f;
             camera.rotation = 0.0f;
-            camera.zoom = 2.0f;
-            camera.offset = new Vector2(GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f);
-            camera.target = player.GlobalPosition;
-
+            //camera.offset = new Vector2(GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f);
+            camera.offset = new Vector2(0.0f, 0.0f);
+            //camera.target = player.GlobalPosition;
+            camera.target = new Vector2(0.0f, 0.0f);
             screenShader = LoadShader(null, "../Shaders/screen.fs"); // Post Processing
             screenBuffer = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
         }
+
         public void Shutdown()
         {
-            GameObject.Destroy(); // Unload all textures.
+            GameObject.Destroy();
         }
 
         float shootTimer = 0.0f;
@@ -371,10 +372,8 @@ namespace Project2D
             {
                 var b = bullets[i];
                 // Destroy bullets off screen
-                var max = GetScreenToWorld2D(new Vector2(GetScreenWidth(), GetScreenHeight()), camera); // Screen to World Coordinates
-                var min = GetScreenToWorld2D(new Vector2(0.0f, 0.0f), camera);
-                if (b.GlobalPosition.x > max.X || b.GlobalPosition.x < min.X ||
-                    b.GlobalPosition.y > max.Y || b.GlobalPosition.y < min.Y)
+                if (b.GlobalPosition.x > GetScreenWidth() || b.GlobalPosition.x < 0.0f ||
+                    b.GlobalPosition.y > GetScreenHeight() || b.GlobalPosition.y < 0.0f)
                 {
                     b.destroy = true;
                     Console.WriteLine("Destroyed outside of screen bounds.");
@@ -387,11 +386,10 @@ namespace Project2D
                 }
             }
 
-            // Update all Scene Objects
-            sceneRoot.Update(deltaTime);
+            sceneRoot.Update(deltaTime); // Update all Scene Objects
 
             // Update Camera
-            camera.target = player.GlobalPosition;
+            //camera.target = new Vector2(player.GlobalPosition.x * 3.0f, player.GlobalPosition.y * 3.0f);
         }
 
         public void Draw()
@@ -407,20 +405,20 @@ namespace Project2D
 
             // Draw to Window
             BeginDrawing();
-            // Draw Screen Buffer
-            ClearBackground(Color.RAYWHITE);
+                // Draw Screen Buffer
+                ClearBackground(Color.RAYWHITE);
                 BeginShaderMode(screenShader); // Enable Post Processing Shader
                 DrawTextureRec(screenBuffer.texture,
                     new Rectangle(0.0f, 0.0f, screenBuffer.texture.width, -screenBuffer.texture.height), // Flip Y (OpenGL coordinates)
-                    new Vector2(0.0f, 0.0f),
+                    new Raylib.Vector2(0.0f, 0.0f),
                     Color.WHITE);
-            EndShaderMode();
+                EndShaderMode();
 
-            // Draw UI
-            if (DEBUG.debugEnabled)
-            {
-                DrawText(fps.ToString(), 10, 10, 14, Color.RED);
-            }
+                // Draw UI
+                if (DEBUG.debugEnabled)
+                {
+                    DrawText(fps.ToString(), 10, 10, 14, Color.RED);
+                }
             EndDrawing();
         }
     }

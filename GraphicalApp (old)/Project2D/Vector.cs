@@ -76,8 +76,8 @@ namespace Project2D
         }
 
         // Conversion from Raylib Types
-        public static implicit operator System.Numerics.Vector2(Vector2 v) => new System.Numerics.Vector2(v.x, v.y);
-        public static explicit operator Vector2(System.Numerics.Vector2 v) => new Vector2(v.X, v.Y);
+        public static implicit operator Raylib.Vector2(Vector2 v) => new Raylib.Vector2(v.x, v.y);
+        public static explicit operator Vector2(Raylib.Vector2 v) => new Vector2(v.x, v.y);
     }
     public class Vector3
     {
@@ -159,8 +159,8 @@ namespace Project2D
         }
 
         // Conversion from Raylib Types
-        public static implicit operator System.Numerics.Vector3(Vector3 v) => new System.Numerics.Vector3(v.x, v.y, v.z);
-        public static explicit operator Vector3(System.Numerics.Vector3 v) => new Vector3(v.X, v.Y, v.Z);
+        public static implicit operator Raylib.Vector3(Vector3 v) => new Raylib.Vector3(v.x, v.y, v.z);
+        public static explicit operator Vector3(Raylib.Vector3 v) => new Vector3(v.x, v.y, v.z);
     }
     public class Vector4
     {
@@ -242,7 +242,7 @@ namespace Project2D
         }
 
         // Conversion from Raylib Types
-        public static implicit operator System.Numerics.Vector4(Vector4 v) => new System.Numerics.Vector4(v.x, v.y, v.z, v.w);
-        public static explicit operator Vector4(System.Numerics.Vector4 v) => new Vector4(v.X, v.Y, v.Z, v.W);
+        public static implicit operator Raylib.Vector4(Vector4 v) => new Raylib.Vector4(v.x, v.y, v.z, v.w);
+        public static explicit operator Vector4(Raylib.Vector4 v) => new Vector4(v.x, v.y, v.z, v.w);
     }
 }

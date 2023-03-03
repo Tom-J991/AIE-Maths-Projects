@@ -1,6 +1,6 @@
 ﻿using System;
-using Raylib_cs;
-using static Raylib_cs.Raylib;
+using Raylib;
+using static Raylib.Raylib;
 
 namespace Project2D
 {
@@ -10,8 +10,8 @@ namespace Project2D
         {
             Game game = new Game();
 
-            SetConfigFlags(ConfigFlags.FLAG_MSAA_4X_HINT);
-            InitWindow(640, 480, "Tank Game");
+            SetConfigFlags(ConfigFlag.FLAG_MSAA_4X_HINT);
+            InitWindow(640, 480, "Hello World");
 
             game.Init();
 

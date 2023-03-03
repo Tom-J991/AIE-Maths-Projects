@@ -1,4 +1,4 @@
-﻿using Raylib_cs;
+﻿using Raylib;
 using System;
 using System.Collections.Generic;
 
@@ -35,7 +35,7 @@ namespace Project2D
             // Use by itself when closing game, do not use with an instance.
             // e.g. GameObject.Destroy();
             foreach (var tex in GameObject.loadedTextures.Values)
-                Raylib.UnloadTexture(tex);
+                Raylib.Raylib.UnloadTexture(tex);
         }
 
         public virtual void Update(float deltaTime)
@@ -52,8 +52,8 @@ namespace Project2D
         // Textures
         public static void PreloadTexture(string filePath)
         {
-            Image img = Raylib.LoadImage(filePath);
-            Texture2D tex = Raylib.LoadTextureFromImage(img);
+            Raylib.Image img = Raylib.Raylib.LoadImage(filePath);
+            Texture2D tex = Raylib.Raylib.LoadTextureFromImage(img);
             GameObject.loadedTextures.Add(filePath, tex);
         }
 
@@ -162,8 +162,8 @@ namespace Project2D
             }
             else // Load texture if not already loaded.
             {
-                Image img = Raylib.LoadImage(filePath);
-                tex = Raylib.LoadTextureFromImage(img);
+                Raylib.Image img = Raylib.Raylib.LoadImage(filePath);
+                tex = Raylib.Raylib.LoadTextureFromImage(img);
                 GameObject.loadedTextures.Add(filePath, tex);
             }
         }
@@ -176,7 +176,7 @@ namespace Project2D
         {
             Rectangle source = new Rectangle(0.0f, 0.0f, TextureWidth, TextureHeight);
             Rectangle dest = new Rectangle(GlobalPosition.x, GlobalPosition.y, Width, Height);
-            Raylib.DrawTexturePro(tex,
+            Raylib.Raylib.DrawTexturePro(tex,
                 source, dest, new Vector2(0.0f, 0.0f), 
                 GlobalRotation * (float)(180.0f / Math.PI),
                 Color.WHITE);

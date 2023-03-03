@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project2D", "Project2D\Project2D.csproj", "{C24AC51D-CF9D-439A-8303-99706B312D78}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Raylib-cs", "Raylib\Raylib-cs\Raylib-cs.csproj", "{ED415756-935D-4963-859A-0D553A82E962}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Raylib", "Raylib\Bindings\Raylib.shproj", "{F660FF67-D70E-4AE0-9080-D922243E9B6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,15 +17,15 @@ Global
 		{C24AC51D-CF9D-439A-8303-99706B312D78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C24AC51D-CF9D-439A-8303-99706B312D78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C24AC51D-CF9D-439A-8303-99706B312D78}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ED415756-935D-4963-859A-0D553A82E962}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ED415756-935D-4963-859A-0D553A82E962}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ED415756-935D-4963-859A-0D553A82E962}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ED415756-935D-4963-859A-0D553A82E962}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {762C2568-D169-46EA-A752-1A721A1EB1D1}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Raylib\Bindings\Raylib.projitems*{c24ac51d-cf9d-439a-8303-99706b312d78}*SharedItemsImports = 4
+		Raylib\Bindings\Raylib.projitems*{f660ff67-d70e-4ae0-9080-d922243e9b6e}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
