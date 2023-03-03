@@ -24,8 +24,8 @@ namespace Project2D
         private float speed = 512.0f;
         private float rotSpeed = 2.0f;
         private float turretSpeed = 4.0f;
-        private float accel = 0.05f;
-        private float decel = 0.1f;
+        private float accel = 50f;
+        private float decel = 100f;
 
         public TankObject() : base()
         {
@@ -35,11 +35,11 @@ namespace Project2D
             turretSprite = new SpriteObject();
             turretObject = new GameObject();
 
-            tankBodySprite.LoadTexture("../Images/tank/tankRed_outline.png");
+            tankBodySprite.LoadTexture("../../Images/tank/tankRed_outline.png");
             tankBodySprite.SetRotation(-90 * (float)(Math.PI / 180.0f));
             tankBodySprite.SetPosition(-tankBodySprite.Width / 2.0f, tankBodySprite.Height / 2.0f);
 
-            turretSprite.LoadTexture("../Images/tank/barrels/barrelRed_outline.png");
+            turretSprite.LoadTexture("../../Images/tank/barrels/barrelRed_outline.png");
             turretSprite.SetRotation(-90 * (float)(Math.PI / 180.0f));
             turretSprite.SetPosition(0.0f, turretSprite.Width / 2.0f);
 
@@ -74,13 +74,13 @@ namespace Project2D
             if (move.x != 0 || move.y != 0)
             {
                 // Quick and dirty acceleration and deceleration.
-                velocity.x = Approach(velocity.x, move.x, accel);
-                velocity.y = Approach(velocity.y, move.y, accel);
+                velocity.x = Approach(velocity.x, move.x, accel * deltaTime);
+                velocity.y = Approach(velocity.y, move.y, accel * deltaTime);
             }
             else
             {
-                velocity.x = Approach(velocity.x, 0.0f, decel);
-                velocity.y = Approach(velocity.y, 0.0f, decel);
+                velocity.x = Approach(velocity.x, 0.0f, decel * deltaTime);
+                velocity.y = Approach(velocity.y, 0.0f, decel * deltaTime);
             }
 
             dVelocity = velocity * deltaTime;
@@ -145,18 +145,18 @@ namespace Project2D
             return _b ? 1 : 0; // Parses boolean as an Integer.
         }
     }
-    class Tracks : GameObject
+    class TrackParticle : GameObject
     {
         private SpriteObject trackSprite;
 
         public bool destroy = false;
-        private float fadeSpeed = 1.0f;
+        private float fadeSpeed = 0.5f;
 
-        public Tracks() : base()
+        public TrackParticle() : base()
         {
             trackSprite = new SpriteObject();
 
-            trackSprite.LoadTexture("../Images/tank/tracks/tracksLarge.png");
+            trackSprite.LoadTexture("../../Images/tank/tracks/tracksLarge.png");
             trackSprite.SetRotation(-90 * (float)(Math.PI / 180.0f));
             trackSprite.SetPosition(-trackSprite.Height / 1.5f, trackSprite.Width / 2.0f);
             trackSprite.alpha = 1.0f;
@@ -195,7 +195,7 @@ namespace Project2D
 
             bulletSprite = new SpriteObject();
 
-            bulletSprite.LoadTexture("../Images/bullets/bulletRed_outline.png");
+            bulletSprite.LoadTexture("../../Images/bullets/bulletRed_outline.png");
             bulletSprite.SetRotation(90 * (float)(Math.PI / 180.0f));
             bulletSprite.SetPosition(bulletSprite.Width, -bulletSprite.Height/4.0f);
             AddChild(bulletSprite);
@@ -237,7 +237,7 @@ namespace Project2D
             }
         }
 
-        public void Collide(GameObject map)
+        public bool Collide(GameObject map)
         {
             for (int i = 0; i < map.GetChildrenCount(); i++)
             {
@@ -249,9 +249,61 @@ namespace Project2D
                     {
                         destroy = true;
                         Console.WriteLine("Destroyed against wall");
+                        return true; // Hit
                     }
                 }
             }
+            return false; // Didn't hit.
+        }
+    }
+    class ExplosionParticle : GameObject
+    {
+        SpriteObject explosionSprite;
+
+        bool destroy = false;
+        float fadeSpeed = 0.8f;
+
+        // Pick random texture.
+        string[] textures = { 
+            "../../Images/explosion/explosion00.png",
+            "../../Images/explosion/explosion01.png",
+            "../../Images/explosion/explosion02.png",
+            "../../Images/explosion/explosion03.png",
+            "../../Images/explosion/explosion04.png",
+            "../../Images/explosion/explosion05.png",
+            "../../Images/explosion/explosion06.png",
+            "../../Images/explosion/explosion07.png",
+            "../../Images/explosion/explosion08.png",
+        };
+
+        public ExplosionParticle() : base()
+        {
+            explosionSprite = new SpriteObject();
+
+            explosionSprite.LoadTexture(textures[Random.Shared.Next(0, textures.Length-1)]);
+            explosionSprite.SetRotation(-90 * (float)(Math.PI / 180.0f));
+            explosionSprite.Scale(0.25f, 0.25f);
+            explosionSprite.SetPosition(-explosionSprite.Width / 2.0f, explosionSprite.Height / 2.0f);
+            explosionSprite.alpha = 1.0f;
+
+            AddChild(explosionSprite);
+        }
+
+        public override void Update(float deltaTime)
+        {
+            if (destroy)
+                return;
+            base.Update(deltaTime);
+            explosionSprite.alpha -= deltaTime * fadeSpeed; // Fade over time.
+            explosionSprite.Rotate(0.001f * (float)(Math.PI / 180.0f));
+            if (explosionSprite.alpha <= 0)
+                destroy = true; // Destroy if faded completely.
+        }
+        public override void Draw()
+        {
+            if (destroy)
+                return;
+            base.Draw();
         }
     }
     class WallObject : SpriteObject
@@ -259,7 +311,7 @@ namespace Project2D
         public AABB boundingBox;
         public WallObject(float x, float y) : base()
         {
-            LoadTexture("../Images/floor.png");
+            LoadTexture("../../Images/floor.png");
             SetPosition(x, y);
 
             boundingBox = new AABB();
@@ -312,9 +364,9 @@ namespace Project2D
         {
         }
 
-        public void Init()
+        public bool Init()
         {
-            // Timing
+            // Init Timing
             stopwatch.Start();
             lastTime = stopwatch.ElapsedMilliseconds;
 
@@ -322,6 +374,25 @@ namespace Project2D
             {
                 Console.WriteLine("Stopwatch high-resolution frequency: {0} ticks per second", Stopwatch.Frequency);
             }
+
+            // Preload Textures to avoid stalling during gameplay.
+            // Particles
+            GameObject.PreloadTexture("../../Images/explosion/explosion00.png");
+            GameObject.PreloadTexture("../../Images/explosion/explosion01.png");
+            GameObject.PreloadTexture("../../Images/explosion/explosion02.png");
+            GameObject.PreloadTexture("../../Images/explosion/explosion03.png");
+            GameObject.PreloadTexture("../../Images/explosion/explosion04.png");
+            GameObject.PreloadTexture("../../Images/explosion/explosion05.png");
+            GameObject.PreloadTexture("../../Images/explosion/explosion06.png");
+            GameObject.PreloadTexture("../../Images/explosion/explosion07.png");
+            GameObject.PreloadTexture("../../Images/explosion/explosion08.png");
+            // Player
+            GameObject.PreloadTexture("../../Images/tank/tankRed_outline.png");
+            GameObject.PreloadTexture("../../Images/tank/barrels/barrelRed_outline.png");
+            GameObject.PreloadTexture("../../Images/tank/tracks/tracksLarge.png");
+            GameObject.PreloadTexture("../../Images/bullets/bulletRed_outline.png");
+            // Environment
+            GameObject.PreloadTexture("../../Images/floor.png");
 
             // Create Game Objects and Init
             sceneRoot = new GameObject();
@@ -349,8 +420,10 @@ namespace Project2D
             camera.offset = new Vector2(GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f);
             camera.target = player.GlobalPosition;
 
-            screenShader = LoadShader(null, "../Shaders/screen.fs"); // Post Processing
+            screenShader = LoadShader(null, "../../Shaders/screen.fs"); // Post Processing
             screenBuffer = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+
+            return true;
         }
         public void Shutdown()
         {
@@ -362,7 +435,7 @@ namespace Project2D
         float trackTimer = 0.0f;
         public void Update()
         {
-            // Game Timings
+            // Timing
             lastTime = currentTime;
             currentTime = stopwatch.ElapsedMilliseconds;
             deltaTime = (currentTime - lastTime) / 1000.0f;
@@ -376,12 +449,20 @@ namespace Project2D
             frames++;
 
             // Insert game logic here
-
             // Collisions
             player.Collide(map);
             foreach (var b in bullets)
             {
-                b.Collide(map);
+                // Bullet collide.
+                if (b.Collide(map))
+                {
+                    // Create Particle
+                    ExplosionParticle e = new ExplosionParticle();
+                    e.SetScale(0.25f, 0.25f);
+                    e.SetPosition(b.GlobalPosition.x, b.GlobalPosition.y);
+                    e.Rotate(Random.Shared.Next(-90, 90) + b.GlobalRotation);
+                    sceneRoot.AddChild(e); // Add particle to scene.
+                }
             }
 
             // Fire Bullets
@@ -420,14 +501,13 @@ namespace Project2D
                     bullets.RemoveAt(i--);
                 }
             }
-            // Create Tracks
-            float trackRate = (1 - (Math.Abs(player.velocity.Magnitude() / 128)) + 0.25f) * 0.25f; // Change track rate relative to player speed.
-            // Console.WriteLine(trackRate.ToString());
+            // Create Track Particle
+            float trackRate = deltaTime * (1 - (Math.Abs(player.velocity.Magnitude() / 128)) + 1.6f) * 1.6f; // Change track rate relative to player speed.
             if (trackTimer > 0.0f)
                 trackTimer -= deltaTime;
             if ((player.dVelocity.x != 0.0f || player.dVelocity.y != 0.0f) && trackTimer <= 0.0f) // Only create track when moving.
             {
-                Tracks t = new Tracks();
+                TrackParticle t = new TrackParticle();
                 t.SetScale(0.25f, 0.25f);
                 t.SetPosition(player.GlobalPosition.x, player.GlobalPosition.y); // Position relative to player.
                 t.Rotate(player.GlobalRotation); // Rotation relative to player.
@@ -450,9 +530,9 @@ namespace Project2D
             // Draw to Screen Buffer
             BeginTextureMode(screenBuffer);
             BeginMode2D(camera); // Enable Camera Transformation
-                // Draw Game Objects
-                ClearBackground(Color.RAYWHITE);
-                sceneRoot.Draw();
+                                    // Draw Game Objects
+            ClearBackground(Color.RAYWHITE);
+            sceneRoot.Draw();
             EndMode2D();
             EndTextureMode();
 
@@ -460,11 +540,11 @@ namespace Project2D
             BeginDrawing();
             // Draw Screen Buffer
             ClearBackground(Color.RAYWHITE);
-                BeginShaderMode(screenShader); // Enable Post Processing Shader
-                DrawTextureRec(screenBuffer.texture,
-                    new Rectangle(0.0f, 0.0f, screenBuffer.texture.width, -screenBuffer.texture.height), // Flip Y (OpenGL coordinates)
-                    new Vector2(0.0f, 0.0f),
-                    Color.WHITE);
+            BeginShaderMode(screenShader); // Enable Post Processing Shader
+            DrawTextureRec(screenBuffer.texture,
+                new Rectangle(0.0f, 0.0f, screenBuffer.texture.width, -screenBuffer.texture.height), // Flip Y (OpenGL coordinates)
+                new Vector2(0.0f, 0.0f),
+                Color.WHITE);
             EndShaderMode();
 
             // Draw UI

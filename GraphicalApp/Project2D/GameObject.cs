@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Project2D
 {
@@ -53,7 +54,7 @@ namespace Project2D
         // Textures
         public static void PreloadTexture(string filePath)
         {
-            Image img = Raylib.LoadImage(filePath);
+            Raylib_cs.Image img = Raylib.LoadImage(filePath);
             Texture2D tex = Raylib.LoadTextureFromImage(img);
             GameObject.loadedTextures.Add(filePath, tex);
         }
@@ -169,7 +170,7 @@ namespace Project2D
             }
             else // Load texture if not already loaded.
             {
-                Image img = Raylib.LoadImage(filePath);
+                Raylib_cs.Image img = Raylib.LoadImage(filePath);
                 tex = Raylib.LoadTextureFromImage(img);
                 GameObject.loadedTextures.Add(filePath, tex);
             }
@@ -190,9 +191,69 @@ namespace Project2D
             base.Draw(); // Draw Children
         }
 
-        public float TextureWidth { get { return tex.width; } }
-        public float TextureHeight { get { return tex.height; } }
-        public float Width { get { return TextureWidth * GlobalScale.x; } }
-        public float Height { get { return TextureHeight * GlobalScale.y; } }
+        public virtual float TextureWidth { get { return tex.width; } }
+        public virtual float TextureHeight { get { return tex.height; } }
+        public virtual float Width { get { return TextureWidth * GlobalScale.x; } }
+        public virtual float Height { get { return TextureHeight * GlobalScale.y; } }
+    }
+
+    public class AnimatedSpriteObject : GameObject
+    {
+        protected Texture2D tex;
+        public float alpha = 1.0f;
+
+        public Vector2 celSize;
+        public int frames = 0;
+        public float animSpeed = 0.0f;
+        protected float currentFrame = 0;
+
+        public AnimatedSpriteObject(int frames = 0, float animSpeed = 1.0f) : base()
+        {
+            this.frames = frames;
+            this.animSpeed = animSpeed * frames;
+        }
+
+        public virtual void LoadTexture(string filePath)
+        {
+            // Get texture if already loaded.
+            var find = GameObject.loadedTextures.ContainsKey(filePath);
+            if (find)
+            {
+                GameObject.loadedTextures.TryGetValue(filePath, out tex);
+            }
+            else // Load texture if not already loaded.
+            {
+                Raylib_cs.Image img = Raylib.LoadImage(filePath);
+                tex = Raylib.LoadTextureFromImage(img);
+                GameObject.loadedTextures.Add(filePath, tex);
+            }
+        }
+
+        public override void Update(float deltaTime)
+        {
+            base.Update(deltaTime);
+            currentFrame += (animSpeed * deltaTime);
+            if (currentFrame >= frames)
+                currentFrame = 0;
+        }
+        public override void Draw()
+        {
+            Rectangle source = new Rectangle(TexCelWidth * (int)currentFrame, 0.0f, TexCelWidth, TexCelHeight);
+            Rectangle dest = new Rectangle(GlobalPosition.x, GlobalPosition.y, CelWidth, CelHeight);
+            Raylib.DrawTexturePro(tex,
+                source, dest, new Vector2(0.0f, 0.0f),
+                GlobalRotation * (float)(180.0f / Math.PI),
+                new Color(255, 255, 255, (int)(alpha * 255)));
+            base.Draw(); // Draw Children
+        }
+
+        public virtual float TextureWidth { get { return tex.width; } }
+        public virtual float TextureHeight { get { return tex.height; } }
+        public virtual float Width { get { return TextureWidth * GlobalScale.x; } }
+        public virtual float Height { get { return TextureHeight * GlobalScale.y; } }
+        public float TexCelWidth { get { return TextureWidth / frames; } }
+        public float TexCelHeight { get { return TextureHeight; } }
+        public float CelWidth { get { return TexCelWidth * GlobalScale.x; } }
+        public float CelHeight { get { return TexCelHeight * GlobalScale.y; } }
     }
 }
